@@ -114,8 +114,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showGameDurationDialog() {
-        val options = arrayOf("15 seconds", "10 minutes", "15 minutes", "20 minutes")
-        val durations = arrayOf(15L, 600L, 900L, 1200L)
+        val options = arrayOf("15 seconds", "5 minutes", "10 minutes", "15 minutes", "20 minutes")
+        val durations = arrayOf(15L, 300L, 600L, 900L, 1200L)
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Select Game Duration")
