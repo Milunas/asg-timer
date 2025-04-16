@@ -62,8 +62,12 @@ class MainActivity : AppCompatActivity() {
     private fun initializeAlarmSound() {
         // Create MediaPlayer with the alarm sound resource
         alarmSound = MediaPlayer.create(this, R.raw.alarm_sound)
-        // Loop the sound
-        alarmSound?.isLooping = false
+
+        // Set listener to restart the sound when it completes
+        alarmSound?.setOnCompletionListener {
+            // Restart playing when the sound finishes
+            it.start()
+        }
     }
 
     private fun setupClickListeners() {
@@ -110,8 +114,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showGameDurationDialog() {
-        val options = arrayOf("5 minutes", "10 minutes", "15 minutes", "20 minutes")
-        val durations = arrayOf(300L, 600L, 900L, 1200L)
+        val options = arrayOf("15 seconds", "10 minutes", "15 minutes", "20 minutes")
+        val durations = arrayOf(15L, 600L, 900L, 1200L)
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Select Game Duration")
@@ -201,7 +205,13 @@ class MainActivity : AppCompatActivity() {
             // Reset to start if it was played before
             if (isPlaying) {
                 stop()
-                prepare()
+                // Recreate the player to ensure it works properly
+                release()
+                alarmSound = MediaPlayer.create(this@MainActivity, R.raw.alarm_sound)
+                alarmSound?.setOnCompletionListener {
+                    // Restart playing when the sound finishes
+                    it.start()
+                }
             }
             start()
         }
@@ -211,7 +221,13 @@ class MainActivity : AppCompatActivity() {
         alarmSound?.apply {
             if (isPlaying) {
                 stop()
-                prepare()
+                // Recreate the player to ensure it works properly
+                release()
+                alarmSound = MediaPlayer.create(this@MainActivity, R.raw.alarm_sound)
+                alarmSound?.setOnCompletionListener {
+                    // Restart playing when the sound finishes
+                    it.start()
+                }
             }
         }
     }
@@ -226,7 +242,7 @@ class MainActivity : AppCompatActivity() {
 
         updateButtonDisplay()
 
-        // Play alarm sound
+        // Play alarm sound continuously
         playAlarmSound()
 
         // Show results dialog
