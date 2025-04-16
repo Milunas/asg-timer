@@ -1,12 +1,12 @@
 package com.example.myapplication
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.concurrent.TimeUnit
@@ -19,6 +19,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var startButton: Button
     private lateinit var pauseButton: Button
     private lateinit var resetButton: Button
+
+    // Media player for alarm sound
+    private var alarmSound: MediaPlayer? = null
 
     // Timer variables
     private var team1TimeInSeconds = 0L
@@ -49,8 +52,18 @@ class MainActivity : AppCompatActivity() {
         pauseButton = findViewById(R.id.button4)
         resetButton = findViewById(R.id.button5)
 
+        // Initialize alarm sound
+        initializeAlarmSound()
+
         setupClickListeners()
         updateButtonDisplay()
+    }
+
+    private fun initializeAlarmSound() {
+        // Create MediaPlayer with the alarm sound resource
+        alarmSound = MediaPlayer.create(this, R.raw.alarm_sound)
+        // Loop the sound
+        alarmSound?.isLooping = false
     }
 
     private fun setupClickListeners() {
@@ -92,12 +105,13 @@ class MainActivity : AppCompatActivity() {
 
         resetButton.setOnClickListener {
             resetGame()
+            stopAlarmSound() // Ensure alarm is stopped when resetting
         }
     }
 
     private fun showGameDurationDialog() {
-        val options = arrayOf("1 minute", "3 minutes", "5 minutes", "10 minutes")
-        val durations = arrayOf(60L, 180L, 300L, 600L)
+        val options = arrayOf("5 minutes", "10 minutes", "15 minutes", "20 minutes")
+        val durations = arrayOf(300L, 600L, 900L, 1200L)
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Select Game Duration")
@@ -182,6 +196,26 @@ class MainActivity : AppCompatActivity() {
         updateButtonDisplay()
     }
 
+    private fun playAlarmSound() {
+        alarmSound?.apply {
+            // Reset to start if it was played before
+            if (isPlaying) {
+                stop()
+                prepare()
+            }
+            start()
+        }
+    }
+
+    private fun stopAlarmSound() {
+        alarmSound?.apply {
+            if (isPlaying) {
+                stop()
+                prepare()
+            }
+        }
+    }
+
     private fun endGame() {
         isRunning = false
         isPaused = true
@@ -191,6 +225,9 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacks(timerRunnable ?: return)
 
         updateButtonDisplay()
+
+        // Play alarm sound
+        playAlarmSound()
 
         // Show results dialog
         showResultsDialog()
@@ -204,9 +241,11 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Game Over")
             .setMessage("Results:\n\nTeam ALPHA: $team1Time\nTeam SIGMA: $team2Time")
             .setPositiveButton("OK") { dialog, _ ->
+                stopAlarmSound()
                 dialog.dismiss()
             }
             .setNeutralButton("Reset") { _, _ ->
+                stopAlarmSound()
                 resetGame()
             }
             .setCancelable(false)
@@ -241,5 +280,9 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         gameCountDownTimer?.cancel()
         handler.removeCallbacks(timerRunnable ?: return)
+
+        // Release media player resources
+        alarmSound?.release()
+        alarmSound = null
     }
 }
