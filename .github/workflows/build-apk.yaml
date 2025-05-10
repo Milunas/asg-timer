@@ -35,6 +35,16 @@ jobs:
     - name: Build APK
       run: ./gradlew assembleRelease
 
+      # Ensure the APK exists before proceeding
+    - name: Ensure APK exists
+      run: |
+        if [ -f app/build/outputs/apk/release/app-release-unsigned.apk ]; then
+          echo "APK exists!"
+        else
+          echo "APK does not exist. Build failed."
+          exit 1
+        fi
+
     # Upload the APK as a release artifact
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v2
