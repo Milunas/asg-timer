@@ -48,6 +48,13 @@ jobs:
           exit 1
         fi
 
+    # Create a Git tag
+    - name: Create a Git tag
+      run: |
+        TAG_NAME="v1.0.${{ github.run_number }}"  # Incremental version, or use Git commit SHA
+        git tag $TAG_NAME
+        git push origin $TAG_NAME
+
     # Upload the APK as a release artifact
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v4
@@ -57,8 +64,10 @@ jobs:
 
     # Create a GitHub release
     - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
+      uses: gh actions/create-release@v1
       with:
-        files: app/build/outputs/apk/release/app-release-unsigned.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ steps.create-tag.outputs.tag }}
+        release_name: Release ${{ steps.create-tag.outputs.tag }}
+        body: "Release description"
+        draft: false
+        prerelease: false
