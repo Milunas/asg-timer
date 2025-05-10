@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'latest'  # Example: v1.0, v2.2.1
+  workflow_dispatch:  # 👈 Manual trigger support
 
 jobs:
   build:
