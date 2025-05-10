@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:  # 👈 Manual trigger support
 
+permissions:
+  contents: write  # This gives GitHub Actions permission to push tags
+
 jobs:
   build:
     name: Build APK
