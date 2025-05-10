@@ -40,12 +40,12 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: app-release-apk
-        path: app/build/outputs/apk/release/app-release.apk
+        path: app/build/outputs/apk/release/app-release-unsigned.apk
 
     # Create a GitHub release
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        files: app/build/outputs/apk/release/app-release.apk
+        files: app/build/outputs/apk/release/app-release-unsigned.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
