@@ -24,15 +24,42 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts', '**/gradle-wrapper.properties') }}
+
+      - name: Generate version name
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            VERSION_NAME="${{ github.event.release.tag_name }}"
+          else
+            VERSION_NAME="dev-$(date +'%Y%m%d')-${{ github.sha }}"
+          fi
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "::set-output name=name::$VERSION_NAME"        
+
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x ./gradlew
 
-      - name: Build release APK
-        run: ./gradlew assembleRelease
+      - name: Build APK
+        run: ./gradlew assembleRelease -PversionName=${{ env.VERSION_NAME }}
 
-      - name: Upload APK to GitHub Release
+      - name: Upload APK to GitHub Release (if tagged release)
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
           files: app/build/outputs/apk/release/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK as Artifact (for dev builds)
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release-${{ steps.version.outputs.name }}.apk
+          path: app/build/outputs/apk/release/app-release.apk
