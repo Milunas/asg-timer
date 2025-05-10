@@ -56,10 +56,3 @@ jobs:
           files: app/build/outputs/apk/release/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload APK as Artifact (for dev builds)
-        if: github.event_name != 'release'
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-release-${{ steps.version.outputs.name }}.apk
-          path: app/build/outputs/apk/release/app-release.apk
