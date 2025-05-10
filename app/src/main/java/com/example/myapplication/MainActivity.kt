@@ -273,9 +273,9 @@ class MainActivity : AppCompatActivity() {
         team1Button.text = "ALPHA\n${formatTime(team1TimeInSeconds)}"
         team2Button.text = "SIGMA\n${formatTime(team2TimeInSeconds)}"
 
-        // Highlight active team
-        team1Button.alpha = if (activeTeam == 1) 1.0f else 0.7f
-        team2Button.alpha = if (activeTeam == 2) 1.0f else 0.7f
+        // Highlight active team with higher brightness (1.5f) and inactive teams more dimmed (0.2f)
+        team1Button.alpha = if (activeTeam == 1) 1.5f else 0.2f
+        team2Button.alpha = if (activeTeam == 2) 1.5f else 0.2f
 
         // Update control buttons
         startButton.isEnabled = !isRunning || isPaused
